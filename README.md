@@ -22,6 +22,7 @@ pos-tag and map the opinions from token-links to term-links. These are the main 
 ##Requirements and installation##
 
 The requirementes are three:
+
 1. The [KafNafParser](https://github.com/cltl/KafNafParserPy) library to parse and create KAF/NAF files
 2. [Apache open-nlp toolkit] (https://opennlp.apache.org/) for performing the tokenisation
 3. TreeTagger (http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/) pos-tagger
