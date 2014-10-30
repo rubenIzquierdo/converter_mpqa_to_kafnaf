@@ -279,12 +279,9 @@ if __name__ == '__main__':
     args = parser.parse_args(args)
     
     os.mkdir(args.out_folder)
-    n = 0
     for plain_file, annotated_file, sentences_file, meta_file, out_file in get_mpqa_files(args.path_to_mpqa):
         complete_out_file = args.out_folder + '/' + out_file + '.' + args.this_type.lower()
         process_document(plain_file, annotated_file, sentences_file, complete_out_file, args.this_type.upper(), use_attitude_as_opinion_expression=args.use_attitude_as_opiexp)
-        n += 1
-        if n == 10: break
     print>>sys.stderr,'#'*100
     print>>sys.stderr,'ALL DONE OK'
     print>>sys.stderr,'#'*100
