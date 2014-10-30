@@ -13,6 +13,7 @@ The GATE annotations of the original corpus are converted to triples (opinion_ex
 All the attributes of the GATE annotations are stored in the attributes `polarity` and `strength` of the extracted results. Furthermore, the MPQA
 corpus is annotated at token level, and the opinions in KAF/NAF are linked to terms, so we will provide some scripts to automatically retokenise,
 pos-tag and map the opinions from token-links to term-links. These are the main steps that will be applied:
+
 1. Convert the original MPQA to KAF/NAF (opinions linked to tokens)
 2. Retokenise using apache open-nlp and fix some problems with annotations including punctuation symbols
 3. Apply the TreeTagger (pos-tagging) and map the opinions to be linked with terms
