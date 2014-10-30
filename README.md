@@ -33,8 +33,8 @@ To make it easy we provide one script that performs an **automatic and quick ins
 to get this software running is to clone this repository and run the installation script:
 ```shell
 cd your_local_path
-git clone XXXX
-cd XXXX
+git clone https://github.com/rubenIzquierdo/converter_mpqa_to_kafnaf
+cd converter_mpqa_to_kafnaf
 bash install_dependencies.sh
 ```
 
