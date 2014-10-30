@@ -44,6 +44,8 @@ def extract_direct_subjective(annotator_reader):
                         break
                     
         ## Try to obtain the expression data
+        attitude_anot_data = None
+        target_data = None
         for attitude_link_id in features.get('attitude-link',[]):
             attitude_anot_id, attitude_anot_data = annotator_reader.get_annotation_from_link_id(attitude_link_id,'GATE_attitude')   # This will be the opinion expression
             if attitude_anot_id is None: 
@@ -66,8 +68,8 @@ def extract_direct_subjective(annotator_reader):
             print>>sys.stderr,'\t\tHolder data:',holder_data
             '''
             
-            opinions.append((anot_data,attitude_anot_data,target_data,holder_data))
-            #opinions.append((opinion_expression_data,holder_data, target_data))
+        opinions.append((anot_data,attitude_anot_data,target_data,holder_data))
+        #opinions.append((opinion_expression_data,holder_data, target_data))
     print>>sys.stderr,'\tNumber of opinions: ',len(opinions)
     return opinions
 
@@ -121,8 +123,11 @@ def convert_to_kaf_naf(opinions ,output_file, type_file, token_ids_in_order, all
     for dse_data, attitude_data, target_data, holder_data in opinions:
         ## data is like --> 
         #(2681, 2877, 'GATE_attitude', {'intensity': ['high-extreme'], 'id': ['laughedAt'], 'attitude-type': ['arguing-pos'], 'target-link': ['ifThis']})
-        attitude = attitude_data[3].get('attitude-type',['no-attitude'])[0]
-        intensity_attitude = attitude_data[3].get('intensity',['no-intensity'])[0]
+        attitude = 'no-attitude'
+        intensity_attitude = 'no-intensity'
+        if attitude_data is not None:
+            attitude = attitude_data[3].get('attitude-type',['no-attitude'])[0]
+            intensity_attitude = attitude_data[3].get('intensity',['no-intensity'])[0]
         polarity_dse = dse_data[3].get('polarity',['no-polarity'])[0]
         expresion_intensity_dse = dse_data[3].get('expression-intensity',['expression-intensity'])[0]
         intensity_dse = dse_data[3].get('intensity',['no-intensity'])[0]
@@ -132,7 +137,7 @@ def convert_to_kaf_naf(opinions ,output_file, type_file, token_ids_in_order, all
         #Build the opinion expression
         opi_exp_ids = tar_ids = hol_ids = None
         exp_identifier = tar_identifier = hol_identifier = 'None'
-        if use_attitude:
+        if attitude_data is not None and use_attitude:
             #we will use the attitude
             opi_exp_ids = [my_id for my_id in get_token_ids_for_annotation(index_offset_to_token_id,attitude_data) if my_id not in ids_removed]
             exp_identifier = attitude_data[2]+'#id:'+attitude_data[3].get('id',[''])[0]+'#'+str(attitude_data[0])+'-'+str(attitude_data[1])
@@ -280,8 +285,9 @@ if __name__ == '__main__':
     
     os.mkdir(args.out_folder)
     for plain_file, annotated_file, sentences_file, meta_file, out_file in get_mpqa_files(args.path_to_mpqa):
-        complete_out_file = args.out_folder + '/' + out_file + '.' + args.this_type.lower()
-        process_document(plain_file, annotated_file, sentences_file, complete_out_file, args.this_type.upper(), use_attitude_as_opinion_expression=args.use_attitude_as_opiexp)
+        if '21.16.15-1122' in plain_file:
+            complete_out_file = args.out_folder + '/' + out_file + '.' + args.this_type.lower()
+            process_document(plain_file, annotated_file, sentences_file, complete_out_file, args.this_type.upper(), use_attitude_as_opinion_expression=args.use_attitude_as_opiexp)
     print>>sys.stderr,'#'*100
     print>>sys.stderr,'ALL DONE OK'
     print>>sys.stderr,'#'*100
