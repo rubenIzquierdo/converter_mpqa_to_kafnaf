@@ -27,6 +27,7 @@ The requirementes are three:
 2. [Apache open-nlp toolkit] (https://opennlp.apache.org/) for performing the tokenisation
 3. TreeTagger (http://www.cis.uni-muenchen.de/~schmid/tools/TreeTagger/) pos-tagger
 
+###Automatic and quick installation###
 To make it easy we provide one script that performs an **automatic and quick installation**. This script is called
 `install_dependencies.sh` and will download and install all the required libraries. So basically the only needed steps
 to get this software running is to clone this repository and run the installation script:
