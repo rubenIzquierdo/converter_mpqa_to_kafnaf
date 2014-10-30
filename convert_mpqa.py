@@ -285,9 +285,8 @@ if __name__ == '__main__':
     
     os.mkdir(args.out_folder)
     for plain_file, annotated_file, sentences_file, meta_file, out_file in get_mpqa_files(args.path_to_mpqa):
-        if '21.16.15-1122' in plain_file:
-            complete_out_file = args.out_folder + '/' + out_file + '.' + args.this_type.lower()
-            process_document(plain_file, annotated_file, sentences_file, complete_out_file, args.this_type.upper(), use_attitude_as_opinion_expression=args.use_attitude_as_opiexp)
+        complete_out_file = args.out_folder + '/' + out_file + '.' + args.this_type.lower()
+        process_document(plain_file, annotated_file, sentences_file, complete_out_file, args.this_type.upper(), use_attitude_as_opinion_expression=args.use_attitude_as_opiexp)
     print>>sys.stderr,'#'*100
     print>>sys.stderr,'ALL DONE OK'
     print>>sys.stderr,'#'*100
