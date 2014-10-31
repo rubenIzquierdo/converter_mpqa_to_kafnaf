@@ -10,6 +10,7 @@ from ext_libs.KafNafParserPy import *
 KAF = 'KAF'
 NAF = 'NAF'
 
+__version__ = '1.0'
 def get_mpqa_files(path_to_mpqa):
     '''
     Given a path to MPQA it returns (yields) triples:
@@ -99,6 +100,7 @@ def convert_to_kaf_naf(opinions ,output_file, type_file, token_ids_in_order, all
     
     knaf_obj = KafNafParser(type=type_file)
     knaf_obj.set_language('en')
+    knaf_obj.set_version('1.0')
     #CREATING THE TOKEN LAYER
     ids_removed = set()
     for token_id in token_ids_in_order:
@@ -204,7 +206,11 @@ def convert_to_kaf_naf(opinions ,output_file, type_file, token_ids_in_order, all
         
         
         
-        
+    my_lp = Clp()
+    my_lp.set_name('MPQA corpus')
+    my_lp.set_version(__version__)
+    my_lp.set_timestamp()
+    knaf_obj.add_linguistic_processor('opinions', my_lp)
     knaf_obj.dump(output_file)
     print>>sys.stderr,'\t',type_file,'file created at', output_file
 
@@ -280,8 +286,9 @@ if __name__ == '__main__':
     parser.add_argument('-out', dest='out_folder',help='Output folder for the files')
     
 
-    args = ['-mpqa','./database.mpqa.2.0','-type','kaf','-out','my_out']
-    args = parser.parse_args(args)
+    #args = ['-mpqa','./database.mpqa.2.0','-type','kaf','-out','my_out']
+    #args = parser.parse_args(args)
+    args = parser.parse_args()
     
     os.mkdir(args.out_folder)
     for plain_file, annotated_file, sentences_file, meta_file, out_file in get_mpqa_files(args.path_to_mpqa):
