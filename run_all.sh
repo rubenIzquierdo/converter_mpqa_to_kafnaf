@@ -2,7 +2,7 @@
 
 MPQA='./database.mpqa.2.0'
 TYPE='kaf'	#you can use also naf
-OUT='my_out'
+OUT='my_out_dse'
 USE_ATTITUDE='' 	#change it to -attitude to use mpqa GATE-attitude annotations as opinion expressions
 
 ########################################################
@@ -11,6 +11,17 @@ USE_ATTITUDE='' 	#change it to -attitude to use mpqa GATE-attitude annotations a
 echo Converting to KAF/NAF
 python convert_mpqa.py -mpqa $MPQA -type $TYPE -out $OUT $USE_ATTITUDE
 
+
+#Remove those with no opinions
+for this_file in $OUT/*.$TYPE
+do
+    n=`grep "<opinion_expression " $this_file | wc -l`
+    if [ $n -eq 0 ]; 
+      then 
+        echo "Removed $this_file because it had no opinions"
+        rm $this_file
+    fi
+done
 
 ########################################################
 ## Apply tokenizer to all
@@ -43,4 +54,4 @@ do
 done
 
 
-
+echo "All done converting MPQA at `pwd`" | mail -s 'MPQA done' ruben.izquierdobevia@vu.nl

@@ -35,6 +35,11 @@ def extract_direct_subjective(annotator_reader):
         #DIRECT SUBJ: 955 (326, 326, 'GATE_direct-subjective', {'nested-source': ['w'], 'intensity': ['medium'], 'implicit': ['true'], 'attitude-link': ['occasion']})
         begin_offset, end_offset, type, features = anot_data
         
+        implicit = features.get('implicit', ['false'])[0]
+        if implicit == 'true':  #Implicit DSE are skipped
+            continue
+        
+        
         # Extracting the agent --> holder data
         holder_data = None
         if 'nested-source' in features:
@@ -43,7 +48,20 @@ def extract_direct_subjective(annotator_reader):
                     anot_agent_id, holder_data = annotator_reader.get_annotation_from_link_id(agent_id,'GATE_agent')
                     if anot_agent_id is not None: 
                         break
-                    
+                
+        holder_data = None   
+        if 'nested-source' in features:
+            agent_id = features['nested-source'][-1]
+            if agent_id != 'w':
+                all_agents = []  
+                for anot_agent_id, holder_data in annotator_reader.get_annotations_with_type('GATE_agent'):
+                    if agent_id in holder_data[3].get('nested-source',[]) or agent_id in holder_data[3].get('id',[]):
+                        distance_to_expression = begin_offset - holder_data[0]
+                        if distance_to_expression > 0:
+                            all_agents.append((distance_to_expression, holder_data))
+                if len(all_agents) != 0:
+                    shortest_dist, holder_data = sorted(all_agents,key=lambda t: t[0])[0]
+        
         ## Try to obtain the expression data
         attitude_anot_data = None
         target_data = None
@@ -68,9 +86,10 @@ def extract_direct_subjective(annotator_reader):
             print>>sys.stderr,'\t\tTarget data:',target_data
             print>>sys.stderr,'\t\tHolder data:',holder_data
             '''
-            
-        opinions.append((anot_data,attitude_anot_data,target_data,holder_data))
-        #opinions.append((opinion_expression_data,holder_data, target_data))
+            opinions.append((anot_data,attitude_anot_data,target_data,holder_data))
+            #We include only one attitude per DSE
+            break
+        
     print>>sys.stderr,'\tNumber of opinions: ',len(opinions)
     return opinions
 
@@ -161,7 +180,6 @@ def convert_to_kaf_naf(opinions ,output_file, type_file, token_ids_in_order, all
         #############
         my_opinion = Copinion(type=type_file)
         my_opinion.set_id('o'+str(num_opinion))
-        num_opinion += 1
                           
         #############
         # opinion expression
@@ -184,9 +202,9 @@ def convert_to_kaf_naf(opinions ,output_file, type_file, token_ids_in_order, all
             tar_span = Cspan()
             tar_span.create_from_ids(tar_ids)
             opi_tar.set_span(tar_span)
-        tar_text = ' '.join(all_tokens[token_id][0] for token_id in tar_ids)
-        opi_tar.set_comment(tar_identifier+'###'+tar_text)
-        my_opinion.set_target(opi_tar)
+            tar_text = ' '.join(all_tokens[token_id][0] for token_id in tar_ids)
+            opi_tar.set_comment(tar_identifier+'###'+tar_text)
+            my_opinion.set_target(opi_tar)
         
         #############
         # opinion holder
@@ -196,13 +214,14 @@ def convert_to_kaf_naf(opinions ,output_file, type_file, token_ids_in_order, all
             hol_span = Cspan()
             hol_span.create_from_ids(hol_ids)
             opi_hol.set_span(hol_span)
-        hol_text = ' '.join(all_tokens[token_id][0] for token_id in hol_ids)
-        opi_hol.set_comment(hol_identifier+'###'+hol_text)
-        my_opinion.set_holder(opi_hol)
+            hol_text = ' '.join(all_tokens[token_id][0] for token_id in hol_ids)
+            opi_hol.set_comment(hol_identifier+'###'+hol_text)
+            my_opinion.set_holder(opi_hol)
         #############
-        
-        knaf_obj.add_opinion(my_opinion)
-        
+
+        if True or attitude in ['sentiment-neg','sentiment-pos']:
+            knaf_obj.add_opinion(my_opinion)
+            num_opinion += 1        
         
         
         
@@ -292,6 +311,7 @@ if __name__ == '__main__':
     
     os.mkdir(args.out_folder)
     for plain_file, annotated_file, sentences_file, meta_file, out_file in get_mpqa_files(args.path_to_mpqa):
+        #if '17.55.10' in plain_file:            
         complete_out_file = args.out_folder + '/' + out_file + '.' + args.this_type.lower()
         process_document(plain_file, annotated_file, sentences_file, complete_out_file, args.this_type.upper(), use_attitude_as_opinion_expression=args.use_attitude_as_opiexp)
     print>>sys.stderr,'#'*100

@@ -150,6 +150,8 @@ class CAnnotator_reader:
                     anot_feats = fields[4]
                 else: anot_feats = None
                 self.all_annotations.add_annotation(anot_id, anot_offsets, anot_type, anot_feats)
+                if anot_type == 'GATE_agent':
+                    print 'AGENT:', fields
         fic.close()
             
     def get_anot_ids_for_single_offset(self,offset):          
